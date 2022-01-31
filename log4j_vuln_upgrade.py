@@ -97,10 +97,11 @@ def deploy(path_to_find, path_to_output, t_class):
 
         i = 0x0
         for c_file in files:
-            # output_str = output_str + "Checking " + c_file + " (" + str(i) + ")" + "\n"
+            output_str = output_str + "Checking " + c_file + " (" + str(i) + ")" + "\n"
             output_str = output_str + check_jar(c_file, path_to_output, t_class, handle_log)
             i += 1
 
+    output_str = output_str + "[+] Script completed!\n"
     handle_log.write(output_str)
     handle_log.close()
 
