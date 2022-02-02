@@ -92,7 +92,7 @@ function Find-Files($Path, $tClass)
                     Add-Content "log4j_vuln_upgrade.log" $outputStr                    
 
                     # hot patching
-                    # Copy-Item $finalUpdatedZip -Destination $file
+                    Copy-Item $finalUpdatedZip -Destination $file
                 }                
             }            
         }

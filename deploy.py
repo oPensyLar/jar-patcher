@@ -5,8 +5,8 @@ from pypsrp.client import Client
 srv_lst = "srv.lst"
 
 # login creds
-user = "root"
-passwd = "pxgtsjmnt"
+user = "you-ad-user"
+passwd = "you-ad-password"
 
 ssh_port = 22
 
