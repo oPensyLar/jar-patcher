@@ -32,66 +32,44 @@ class SshClient:
         self.sftp.close()
         self.transport.close()
 
-    def ssh_loop(self, cmd):
-        repeat = True
+    def ssh_cmd(self, cmd):
+        client = paramiko.client.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.load_system_host_keys()
+        time.sleep(1)
 
-        while repeat:
-            client = paramiko.client.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            client.load_system_host_keys()
-            time.sleep(1)
+        try:
+            client.connect(self.host, port=self.port, username=self.user, password=self.password)
 
-            try:
-                client.connect(self.host, port=self.port, username=self.user, password=self.password)
+        except paramiko.ssh_exception.AuthenticationException:
+            return None
 
-            except gaierror:
-                print("[!] gaierror")
-                continue
+        except TimeoutError:
+            return None
 
-            except ConnectionError:
-                print("[!] ConnectionError")
-                continue
+        try:
+            stdin, stdout, stderr = client.exec_command(cmd)
 
-            except TimeoutError:
-                print("[!] TimeoutError")
-                continue
+        except ConnectionResetError:
+            print("[!] exec_command() ERROR")
+            return None
 
-            except EOFError:
-                print("[!] ERROR")
-                continue
+        except paramiko.ssh_exception.SSHException:
+            print("[!] SSHException ERROR")
+            return None
 
-            except paramiko.ssh_exception.AuthenticationException:
-                print("[!] ERROR")
-                continue
+        stdout = stdout.readlines()
+        stderr = stderr.readlines()
+        # stdin = stdin.readlines()
+        client.close()
 
-            except paramiko.ssh_exception.NoValidConnectionsError:
-                print("[!] ERROR")
-                continue
+        # print(stdin)
 
-            try:
-                stdin, stdout, stderr = client.exec_command(cmd)
+        str_output = ''.join(str(e) for e in stdout)
+        str_err_output = ''.join(str(e) for e in stderr)
+        print()
 
-            except ConnectionResetError:
-                print("[!] exec_command() ERROR")
-                continue
+        return {"stdout": str_output, "stderr": str_err_output}
 
-            except paramiko.ssh_exception.SSHException:
-                print("[!] SSHException ERROR")
-                continue
-
-            stdout = stdout.readlines()
-            stderr = stderr.readlines()
-            # stdin = stdin.readlines()
-            client.close()
-
-            # print(stdin)
-
-            str_output = ''.join(str(e) for e in stdout)
-            str_err_output = ''.join(str(e) for e in stderr)
-            print()
-
-            return {"stdout": str_output, "stderr": str_err_output}
-
-            # print(stdout)
-            # print(stderr)
-            repeat = False
+        # print(stdout)
+        # print(stderr)
